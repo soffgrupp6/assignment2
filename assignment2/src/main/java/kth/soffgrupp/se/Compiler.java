@@ -1,9 +1,31 @@
 package kth.soffgrupp.se;
 
-class Compiler {
-    
-    public void compile() {
-        
-    }
+import java.io.*;
 
+class Compiler {
+    /**
+     * The compile function opens a new process to compile the project into a new jar file.
+     * The stdout and stderror of the compilation process is printed to the servers stdout.
+     * In the case of an IOException, the exceptions stacktrace is printed to the servers stdout. 
+     */
+    public void compile() {
+        try {
+            Process p = Runtime.getRuntime().exec("mvn clean compile assembly:single");
+            BufferedReader stdin = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            BufferedReader stderror = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            String s = null;
+
+            while((s = stdin.readLine()) != null) {
+                System.out.println(s);
+            }
+            while((s = stderror.readLine()) != null) {
+                System.out.println(s);
+            }
+            return;
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
 }
