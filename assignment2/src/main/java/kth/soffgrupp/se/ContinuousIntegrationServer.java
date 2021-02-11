@@ -3,12 +3,12 @@ package kth.soffgrupp.se;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
-
 import java.io.IOException;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import org.kohsuke.github.*;
 
@@ -60,16 +60,23 @@ public class ContinuousIntegrationServer extends AbstractHandler
                        HttpServletResponse response)
         throws IOException, ServletException
     {
-        String branch = "";
-
         GitHandler git;
         Compiler compiler;
         Tester tester;
-
+        
+        // Read the request
+        JSONObject data = new JSONObject(request.getReader().readLine());
+        JSONObject repository = data.getJSONObject("repository");
+        
+        String repo = repository.getString("clone_url");
+        String branch = repository.getString("default_branch");
+        String dest_path = "test";
+        
+        git = new GitHandler(dest_path);
+        
         try {
             // Checkout the Git branch
-            git = new GitHandler();
-            git.checkout(branch);
+            git.checkout(repo, branch);
 
             // Compile the code
             compiler = new Compiler();
@@ -78,10 +85,13 @@ public class ContinuousIntegrationServer extends AbstractHandler
             // Test the code
             tester = new Tester();
             tester.test();
+            
         } catch(Exception ex) {
             System.out.println("There was a failure in some step. The steps above should throw the appropriate error on failure.");
         }
-
+        
+        git.clean();
+        
         // Log results
         // .....
 
@@ -92,6 +102,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
         System.out.println(target);
         response.getWriter().println();
+        
 
     }
 

@@ -564,3 +564,8 @@ MigrationBackup/
 .ionide/
 
 # End of https://www.toptal.com/developers/gitignore/api/java,macos,visualstudio,intellij,code,windows,linux
+
+**/target/*
+.project
+**/.settings/*
+.classpath
