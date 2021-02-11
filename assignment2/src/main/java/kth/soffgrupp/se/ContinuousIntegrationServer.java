@@ -42,9 +42,9 @@ public class ContinuousIntegrationServer extends AbstractHandler
      *           GHCommitState.FAILURE
      *           GHCommitState.SUCCESS
      *
-     * @param sha
-     * @param description
-     * @param status
+     * @param sha           Hash value from hexadecimal string
+     * @param description   Description of status, short sentence
+     * @param status        GHCommitState enum
      */
     private void setCommitStatus(String sha, String description, GHCommitState status) {
         try {
@@ -54,6 +54,10 @@ public class ContinuousIntegrationServer extends AbstractHandler
         }
     }
 
+    /**
+     * This function is called for all incoming requests to the server
+     *
+     */
     public void handle(String target,
                        Request baseRequest,
                        HttpServletRequest request,
@@ -95,7 +99,9 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
     }
 
-    // used to start the CI server in command line
+    /**
+     * This function starts the CI server
+     */
     public static void main(String[] args) throws Exception
     {
         Server server = new Server(8080);
