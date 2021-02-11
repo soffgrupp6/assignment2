@@ -10,17 +10,54 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/** 
+import org.kohsuke.github.*;
+
+/**
  Skeleton of a ContinuousIntegrationServer which acts as webhook
  See the Jetty documentation for API documentation of those classes.
 */
 public class ContinuousIntegrationServer extends AbstractHandler
 {
+    GHRepository repo;
+
+    public ContinuousIntegrationServer() {
+        try {
+            GitHub git_api = GitHubBuilder.fromPropertyFile().build();
+
+
+            //assert git_api.isCredentialValid() == true;
+            repo = git_api.getRepository​("soffgrupp6/assignment2");
+
+
+        } catch(java.io.IOException e) {
+            System.err.println(e);
+        }
+    }
+
+    /**
+     * Set commit status for commit sha.
+     *
+     * Status is GHCommitState.ERROR
+     *           GHCommitState.PENDING
+     *           GHCommitState.FAILURE
+     *           GHCommitState.SUCCESS
+     *
+     * @param sha
+     * @param description
+     * @param status
+     */
+    private void setCommitStatus(String sha, String description, GHCommitState status) {
+        try {
+            repo.createCommitStatus(sha, status, "", description, "CI Server");
+        } catch (java.io.IOException e) {
+            System.err.println(e);
+        }
+    }
 
     public void handle(String target,
                        Request baseRequest,
                        HttpServletRequest request,
-                       HttpServletResponse response) 
+                       HttpServletResponse response)
         throws IOException, ServletException
     {
         GitHandler git;
@@ -68,12 +105,12 @@ public class ContinuousIntegrationServer extends AbstractHandler
         
 
     }
- 
+
     // used to start the CI server in command line
     public static void main(String[] args) throws Exception
     {
         Server server = new Server(8080);
-        server.setHandler(new ContinuousIntegrationServer()); 
+        server.setHandler(new ContinuousIntegrationServer());
         server.start();
         server.join();
     }
