@@ -37,13 +37,28 @@
         <artifactId>jetty-server</artifactId>
         <version>10.0.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>3.5.0.201409260305-r</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.json/json -->
+    <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20201115</version>
+    </dependency>
+    <dependency>
+	   <groupId>commons-io</groupId>
+	   <artifactId>commons-io</artifactId>
+	   <version>2.6</version>
+	</dependency>
     <!-- https://mvnrepository.com/artifact/org.kohsuke/github-api -->
     <dependency>
         <groupId>org.kohsuke</groupId>
         <artifactId>github-api</artifactId>
         <version>1.122</version>
     </dependency>
-
   </dependencies>
 
   <build>
