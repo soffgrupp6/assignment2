@@ -9,6 +9,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONException;
 import org.kohsuke.github.*;
 
 /**
@@ -17,35 +18,15 @@ import org.kohsuke.github.*;
 */
 public class ContinuousIntegrationServer extends AbstractHandler
 {
-    GHRepository repo;
+    GHRepository git_repo;
 
     public ContinuousIntegrationServer() {
         try {
             GitHub git_api = GitHubBuilder.fromPropertyFile().build();
             //assert git_api.isCredentialValid() == true;
-            repo = git_api.getRepository​("soffgrupp6/assignment2");
+            git_repo = git_api.getRepository​("soffgrupp6/assignment2");
 
         } catch(java.io.IOException e) {
-            System.err.println(e);
-        }
-    }
-
-    /**
-     * Set commit status for commit sha.
-     *
-     * Status is GHCommitState.ERROR
-     *           GHCommitState.PENDING
-     *           GHCommitState.FAILURE
-     *           GHCommitState.SUCCESS
-     *
-     * @param sha           Hash value from hexadecimal string
-     * @param description   Description of status, short sentence
-     * @param status        GHCommitState enum
-     */
-    private void setCommitStatus(String sha, String description, GHCommitState status) {
-        try {
-            repo.createCommitStatus(sha, status, "", description, "CI Server");
-        } catch (java.io.IOException e) {
             System.err.println(e);
         }
     }
@@ -63,18 +44,35 @@ public class ContinuousIntegrationServer extends AbstractHandler
         GitHandler git;
         Compiler compiler;
         Tester tester;
-        
+        Notifier notifier;
+
         // Read the request
         JSONObject data = new JSONObject(request.getReader().readLine());
         JSONObject repository = data.getJSONObject("repository");
-        
+
         String repo = repository.getString("clone_url");
         String branch = repository.getString("default_branch");
-        String dest_path = "test";
-        
-        git = new GitHandler(dest_path);
-        
+        String sha;
+
         try {
+            sha = data.getJSONArray("commits").getJSONObject(0).getString("id");
+        } catch (JSONException ex) {
+            // On ping
+            // Send response
+            response.setStatus(HttpServletResponse.SC_OK);
+            baseRequest.setHandled(true);
+            System.out.println("Webhook setup");
+            return;
+        }
+        String dest_path = "test";
+
+        git = new GitHandler(dest_path);
+
+        try {
+            // Notify pending
+            notifier = new Notifier(git_repo);
+            notifier.setCommitStatus(sha, "Compiling and testing...", GHCommitState.PENDING);
+
             // Checkout the Git branch
             git.checkout(repo, branch);
 
@@ -85,11 +83,11 @@ public class ContinuousIntegrationServer extends AbstractHandler
             // Test the code
             tester = new Tester();
             tester.test();
-            
+
         } catch(Exception ex) {
-            System.out.println("There was a failure in some step. The steps above should throw the appropriate error on failure.");
+            System.err.println("There was a failure in some step. The steps above should throw the appropriate error on failure. " + ex);
         }
-        
+
         git.clean();
 
         // Send response
