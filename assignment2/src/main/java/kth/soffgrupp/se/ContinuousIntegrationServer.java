@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.kohsuke.github.*;
+import com.google.gson.Gson;
 
 /**
  Skeleton of a ContinuousIntegrationServer which acts as webhook
@@ -24,7 +25,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
         try {
             GitHub git_api = GitHubBuilder.fromPropertyFile().build();
             //assert git_api.isCredentialValid() == true;
-            git_repo = git_api.getRepository​("soffgrupp6/assignment2");
+            git_repo = git_api.getRepository("soffgrupp6/assignment2");
 
         } catch(java.io.IOException e) {
             System.err.println(e);
@@ -45,6 +46,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
         Compiler compiler;
         Tester tester;
         Notifier notifier;
+        BuildLogger log;
 
         // Read the request
         JSONObject data = new JSONObject(request.getReader().readLine());
@@ -67,6 +69,8 @@ public class ContinuousIntegrationServer extends AbstractHandler
         String dest_path = "test";
 
         git = new GitHandler(dest_path);
+        //New logging object
+        log = new BuildLogger(sha);
 
         try {
             // Notify pending
@@ -78,15 +82,20 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
             // Compile the code
             compiler = new Compiler();
-            compiler.compile();
+            compiler.compile(log);
 
             // Test the code
             tester = new Tester();
-            tester.test();
+            tester.test(log);
 
         } catch(Exception ex) {
             System.err.println("There was a failure in some step. The steps above should throw the appropriate error on failure. " + ex);
         }
+
+        //Convert the logging object into json string
+        Gson gson = new Gson();
+        String json = gson.toJson(log);
+        System.out.println(json);
 
         git.clean();
 
