@@ -10,7 +10,7 @@ class Compiler {
      */
     public void compile() throws RuntimeException {
         try {
-            Process p = Runtime.getRuntime().exec("cd test/assignment2 && mvn clean compile assembly:single");
+            Process p = Runtime.getRuntime().exec("mvn -f test/assignment2 clean compile assembly:single");
             BufferedReader stdin = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader stderror = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String s = null;
