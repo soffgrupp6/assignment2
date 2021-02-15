@@ -44,6 +44,7 @@ Dependencies used in the project are:
 - org.json
 - commons-io
 - github-api
+- google gson
 
 ## Description
 
