@@ -26,16 +26,16 @@
     </dependency>
     <!-- https://mvnrepository.com/artifact/javax.servlet/servlet-api -->
     <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.5</version>
-        <scope>provided</scope>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+      <scope>provided</scope>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server -->
     <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <version>10.0.0</version>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>10.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
@@ -44,38 +44,33 @@
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.json/json -->
     <dependency>
-        <groupId>org.json</groupId>
-        <artifactId>json</artifactId>
-        <version>20201115</version>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20201115</version>
     </dependency>
     <dependency>
-	   <groupId>commons-io</groupId>
-	   <artifactId>commons-io</artifactId>
-	   <version>2.6</version>
-	</dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.6</version>
+	  </dependency>
     <!-- https://mvnrepository.com/artifact/org.kohsuke/github-api -->
     <dependency>
-        <groupId>org.kohsuke</groupId>
-        <artifactId>github-api</artifactId>
-        <version>1.122</version>
+      <groupId>org.kohsuke</groupId>
+      <artifactId>github-api</artifactId>
+      <version>1.122</version>
     </dependency>
-      <dependency>
-          <groupId>com.google.code.gson</groupId>
-          <artifactId>gson</artifactId>
-          <version>2.8.6</version>
-      </dependency>
-      <!-- https://mvnrepository.com/artifact/io.jsondb/jsondb-core -->
-      <dependency>
-        <groupId>io.jsondb</groupId>
-        <artifactId>jsondb-core</artifactId>
-        <version>1.0.115-j11</version>
-      </dependency>
-      <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-      <dependency>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-          <version>2.9.4</version>
-      </dependency>
+    <!-- https://mvnrepository.com/artifact/io.jsondb/jsondb-core -->
+    <dependency>
+      <groupId>io.jsondb</groupId>
+      <artifactId>jsondb-core</artifactId>
+      <version>1.0.115-j11</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.9.4</version>
+    </dependency>
   </dependencies>
 
   <build>
