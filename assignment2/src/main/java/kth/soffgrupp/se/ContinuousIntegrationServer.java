@@ -109,6 +109,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
         // Store build information in JSON file
         jsonDBTemplate.insert(log);
 
+
         git.clean();
 
         // Send response
