@@ -84,7 +84,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
         log = new BuildLogger();
         log.setSha(sha);
         log.setTime();
-
+        log.setBranch(branch);
 
         try {
             // Notify pending
@@ -108,7 +108,6 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
         // Store build information in JSON file
         jsonDBTemplate.insert(log);
-
 
         git.clean();
 

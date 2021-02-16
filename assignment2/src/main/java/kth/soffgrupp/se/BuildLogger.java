@@ -5,6 +5,7 @@ import io.jsondb.annotation.Id;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 /**
  * This class holds all build information
@@ -13,18 +14,29 @@ import java.time.LocalDateTime;
 public class BuildLogger {
     @Id
     private String sha;
+    private String branch;
     private String start_time;
     private boolean compile_success = false;
     private boolean test_success = false;
     private int tests_run = 0;
     private int tests_failed = 0;
     private int tests_errors = 0;
+    private ArrayList<String> errors_list = new ArrayList<>();
 
     public String getSha() {
         return sha;
     }
+
     public void setSha(String sha) {
         this.sha = sha;
+    }
+
+    public String getBranch(){
+        return this.branch;
+    }
+
+    public void setBranch(String branch){
+        this.branch = branch;
     }
 
     public String getStart_time() {
@@ -77,5 +89,13 @@ public class BuildLogger {
 
     public void setTests_errors(int tests_errors) {
         this.tests_errors = tests_errors;
+    }
+
+    public ArrayList<String> getErrors_list() {
+        return errors_list;
+    }
+
+    public void setErrors_list(ArrayList<String> errors_list){
+        this.errors_list = errors_list;
     }
 }
