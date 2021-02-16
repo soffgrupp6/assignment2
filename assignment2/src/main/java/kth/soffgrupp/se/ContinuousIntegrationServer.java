@@ -31,6 +31,10 @@ public class ContinuousIntegrationServer extends AbstractHandler
     public ContinuousIntegrationServer() {
         // Create database collection
         jsonDBTemplate = new JsonDBTemplate("jsondb", "kth.soffgrupp.se");
+        if (!jsonDBTemplate.collectionExists(BuildLogger.class)) {
+            jsonDBTemplate.createCollection(BuildLogger.class);
+        }
+
 
         try {
             GitHub git_api = GitHubBuilder.fromPropertyFile().build();
@@ -83,7 +87,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
         log = new BuildLogger();
         log.setSha(sha);
         log.setTime();
-
+        log.setBranch(branch);
 
         try {
             // Notify pending
@@ -112,7 +116,6 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
         // Store build information in JSON file
         jsonDBTemplate.insert(log);
-
 
         git.clean();
 
