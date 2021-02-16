@@ -27,22 +27,22 @@ class Tester {
                 if (s.contains("Tests run") && s.contains("Failures")){
                     int[] vars = parseStat(s, log);
                     //Log test results
-                    log.tests_run = vars[0];
-                    log.tests_failed = vars[1];
-                    log.tests_errors = vars[2];
+                    log.setTests_run(vars[0]);
+                    log.setTests_failed(vars[1]);
+                    log.setTests_errors(vars[2]);
                 }
                 if (s.contains("BUILD SUCCESS")){
-                    log.test_success = true;
+                    log.setTest_success(true);
                 }
             }
             while((s = stderror.readLine()) != null) {
                 System.out.println(s);
             }
             //Throw exceptions at fail
-            if(log.tests_errors > 0 || !log.test_success) {
+            if(log.getTests_errors() > 0 || !log.isTest_success()) {
                 throw new RuntimeException("Error in tests");
             }
-            if(log.tests_failed > 0){
+            if(log.getTests_failed() > 0){
                 throw new RuntimeException("Some tests failed");
             }
         }
