@@ -10,12 +10,9 @@ import java.util.List;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.kohsuke.github.*;
-import com.google.gson.Gson;
-import io.jsondb.JsonDBTemplate;
 import io.jsondb.JsonDBTemplate;
 
 
@@ -31,6 +28,9 @@ public class ContinuousIntegrationServer extends AbstractHandler
     public ContinuousIntegrationServer() {
         // Create database collection
         jsonDBTemplate = new JsonDBTemplate("jsondb", "kth.soffgrupp.se");
+        if (!jsonDBTemplate.collectionExists(BuildLogger.class)) {
+            jsonDBTemplate.createCollection(BuildLogger.class);
+        }
 
         try {
             GitHub git_api = GitHubBuilder.fromPropertyFile().build();
@@ -63,7 +63,8 @@ public class ContinuousIntegrationServer extends AbstractHandler
         JSONObject repository = data.getJSONObject("repository");
 
         String repo = repository.getString("clone_url");
-        String branch = repository.getString("default_branch");
+        String[] ref = data.getString("ref").split("/", 0);
+        String branch = ref[ref.length-1];
         String sha;
 
         try {
@@ -105,11 +106,6 @@ public class ContinuousIntegrationServer extends AbstractHandler
             System.err.println("There was a failure in some step. The steps above should throw the appropriate error on failure. " + ex);
         }
 
-        //Convert the logging object into json string
-        Gson gson = new Gson();
-        String json = gson.toJson(log);
-        System.out.println(json);
-
         // Store build information in JSON file
         jsonDBTemplate.insert(log);
 
@@ -150,18 +146,46 @@ public class ContinuousIntegrationServer extends AbstractHandler
               return (o1.getStart_time().compareTo(o2.getStart_time()));
             }
         };
-        List<BuildLogger> logs = jsonDBTemplate.<BuildLogger>findAll("builds", comparator);
+        List<BuildLogger> logs = jsonDBTemplate.findAll("builds", comparator);
 
         if (target.equals("/")) {
             // Here we serve the list of builds
-            String buildString = "";
+            String buildString = "<div>";
             for (BuildLogger log : logs) {
-                buildString += "<p>Build: " + log.getSha() + " at " + log.getStart_time() + "</p>";
+                String compileString = log.isCompile_success() ? "Compilation succeeded": "Compilation failed";
+                String testString = log.isTest_success() ? "Tests succeeded": "Tests failed";
+                String color = log.isCompile_success() && log.isTest_success() ? "green": "red";
+                String buildStatus = log.isCompile_success() && log.isTest_success() ? "passed": "failed";
+
+                buildString += "<h3 style=\"color:" + color + ";\">Build " + buildStatus + "</h3>";
+                buildString += "<p>Commit hash: <a href=\"/" +  log.getSha() + "\">" + log.getSha() + "</a> at " + log.getStart_time() + "</p>";
+                buildString += "<p> " + compileString + ". " + testString + ".</p>";
             }
+            buildString += "</div>";
             response.getWriter().println("<!DOCTYPE html><html><body><h1><a href=\"/\">CI Server</a></h1><p>This is the list of builds.</p>" + buildString + "</body></html>");
         } else {
             // Here we serve the information from a specific build
-            response.getWriter().println("<!DOCTYPE html><html><body><h1><a href=\"/\">CI Server</a></h1><p>This is build " + target + ".</p></body></html>");
+            String jxQuery = String.format("/.[sha='%s']", target.substring(1));
+            logs = jsonDBTemplate.find(jxQuery, "builds");
+            String buildString = "<div>";
+            if (logs.isEmpty()) {
+                buildString += "<p>Couldn't find build</p>";
+            } else {
+                String compileString = logs.get(0).isCompile_success() ? "Compilation succeeded": "Compilation failed";
+                String testString = logs.get(0).isTest_success() ? "Tests succeeded": "Tests failed";
+                String color = logs.get(0).isCompile_success() && logs.get(0).isTest_success() ? "green": "red";
+                String buildStatus = logs.get(0).isCompile_success() && logs.get(0).isTest_success() ? "passed": "failed";
+
+                buildString += "<h2 style=\"color:" + color + ";\">Build " + buildStatus + "</h2>";
+                buildString += "<p>Commit hash:   " + logs.get(0).getSha() + "<p>";
+                buildString += "<p>Build start:   " + logs.get(0).getStart_time() + "<p>";
+                buildString += "<p>" + compileString + "<p>";
+                if (logs.get(0).isCompile_success()) {
+                    buildString += "<p>No. tests run: " + logs.get(0).getTests_run() + "<p>";
+                    buildString += "<p>" + testString + "<p>";
+                }
+                response.getWriter().println("<!DOCTYPE html><html><body><h1><a href=\"/\">CI Server</a></h1><div>"+ buildString + "</div></body></html>");
+            }
         }
     }
 
