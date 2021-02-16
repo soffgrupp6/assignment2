@@ -4,6 +4,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -12,6 +15,9 @@ import org.json.JSONObject;
 import org.json.JSONException;
 import org.kohsuke.github.*;
 import com.google.gson.Gson;
+import io.jsondb.JsonDBTemplate;
+import io.jsondb.JsonDBTemplate;
+
 
 /**
  Skeleton of a ContinuousIntegrationServer which acts as webhook
@@ -20,8 +26,12 @@ import com.google.gson.Gson;
 public class ContinuousIntegrationServer extends AbstractHandler
 {
     GHRepository git_repo;
+    JsonDBTemplate jsonDBTemplate;
 
     public ContinuousIntegrationServer() {
+        // Create database collection
+        jsonDBTemplate = new JsonDBTemplate("jsondb", "kth.soffgrupp.se");
+
         try {
             GitHub git_api = GitHubBuilder.fromPropertyFile().build();
             //assert git_api.isCredentialValid() == true;
@@ -70,7 +80,10 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
         git = new GitHandler(dest_path);
         //New logging object
-        log = new BuildLogger(sha);
+        log = new BuildLogger();
+        log.setSha(sha);
+        log.setTime();
+
 
         try {
             // Notify pending
@@ -96,6 +109,10 @@ public class ContinuousIntegrationServer extends AbstractHandler
         Gson gson = new Gson();
         String json = gson.toJson(log);
         System.out.println(json);
+
+        // Store build information in JSON file
+        jsonDBTemplate.insert(log);
+
 
         git.clean();
 
@@ -127,10 +144,20 @@ public class ContinuousIntegrationServer extends AbstractHandler
         System.out.print("GET:  ");
         System.out.println(target);
 
+        Comparator<BuildLogger> comparator = new Comparator<BuildLogger>() {
+            @Override
+            public int compare(BuildLogger o1, BuildLogger o2) {
+              return (o1.getStart_time().compareTo(o2.getStart_time()));
+            }
+        };
+        List<BuildLogger> logs = jsonDBTemplate.<BuildLogger>findAll("builds", comparator);
+
         if (target.equals("/")) {
             // Here we serve the list of builds
-            String buildString = "<p>This is a build</p>";
-            buildString += "<p>This is another build</p>";
+            String buildString = "";
+            for (BuildLogger log : logs) {
+                buildString += "<p>Build: " + log.getSha() + " at " + log.getStart_time() + "</p>";
+            }
             response.getWriter().println("<!DOCTYPE html><html><body><h1><a href=\"/\">CI Server</a></h1><p>This is the list of builds.</p>" + buildString + "</body></html>");
         } else {
             // Here we serve the information from a specific build
