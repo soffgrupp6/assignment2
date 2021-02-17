@@ -97,6 +97,8 @@ This will run the automated Unit tests, and a parses will check the output and d
 
 #### Unit tests
 
+The Unit test is a test trying to test a Github repo. The test checks whether the testing is run successfully, as well as if the tester class logs the testing statistics as expected.
+
 ### Updating commit status
 
 Depending on the success or failure of the compilation and testing steps a commit status is sent to Github, through the Github API, as follows:
