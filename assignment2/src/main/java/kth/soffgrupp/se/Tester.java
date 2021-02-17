@@ -19,11 +19,11 @@ class Tester {
      * @throws TestingException
      */
 
-    public void test(BuildLogger log) throws TestingException {
+    public void test(BuildLogger log, String path) throws TestingException{
         try {
             // Run tests
-            Process p = Runtime.getRuntime().exec("mvn -f test/assignment2 test");
-            //Process p = Runtime.getRuntime().exec("mvn test");
+            //Process p = Runtime.getRuntime().exec("mvn -f test/assignment2 test");
+            Process p = Runtime.getRuntime().exec("mvn -f " + path + " test");
             BufferedReader stdin = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader stderror = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String s;
@@ -32,13 +32,11 @@ class Tester {
             while((s = stdin.readLine()) != null) {
 
                 //Check test output for results
-                System.out.println(s);
                 if (s.contains("[ERROR] Failures:")){
                     while(!(s = stdin.readLine()).contains("[INFO]")){
                         s = s.replace("[ERROR]   ", "");
                         errors.add(s);
                     }
-                    log.setErrors_list(errors);
                 }
                 if (s.contains("Tests run") && s.contains("Failures")){
                     int[] vars = parseStat(s, log);
@@ -57,11 +55,9 @@ class Tester {
             while((s = stderror.readLine()) != null) {
                 System.out.println(s);
             }
-            
-            //Throw exceptions at fail
-            if(log.getTests_errors() > 0 || !log.isTest_success()) {
-                throw new RuntimeException("Error in tests");
-            }
+
+            //Log errors
+            log.setErrors_list(errors);
             
             if(log.getTests_failed() > 0){
                 throw new TestingException("Some tests failed");

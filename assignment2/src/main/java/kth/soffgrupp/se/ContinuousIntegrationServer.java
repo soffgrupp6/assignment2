@@ -69,14 +69,15 @@ public class ContinuousIntegrationServer extends AbstractHandler
         // Read the request
         JSONObject data = new JSONObject(request.getReader().readLine());
         JSONObject repository = data.getJSONObject("repository");
-
         String repo = repository.getString("clone_url");
-        String[] ref = data.getString("ref").split("/", 0);
-        String branch = ref[ref.length-1];
+        
+        String branch;
         String sha;
 
         try {
-            sha = data.getJSONArray("commits").getJSONObject(0).getString("id");
+            String[] ref = data.getString("ref").split("/", 3);
+            branch = ref[ref.length-1];
+            sha = data.getJSONObject("head_commit").getString("id");
         } catch (JSONException ex) {
             response.setStatus(HttpServletResponse.SC_OK);
             baseRequest.setHandled(true);
@@ -104,12 +105,13 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
             // Compile the code
             compiler = new Compiler();
-            compiler.compile(log, dest_path);
+            compiler.compile(log, "test/assignment2");
 
             // Test the code
             tester = new Tester();
-            tester.test(log);
-        }     
+            tester.test(log, "test/assignment2");
+
+        }
         catch(CompilationException ex) {
             compilationSuccess = false;
         }       
