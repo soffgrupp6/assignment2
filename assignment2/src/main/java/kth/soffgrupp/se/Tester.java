@@ -3,6 +3,9 @@ package kth.soffgrupp.se;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * This class runs the tests on the Maven project in the directory ./test/assignment2/
+ */
 class Tester {
     /**
      * The test method opens a new process to run the project tests.

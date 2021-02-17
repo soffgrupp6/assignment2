@@ -2,6 +2,9 @@ package kth.soffgrupp.se;
 
 import java.io.*;
 
+/**
+ * This class compiles the source files in the directory ./test/assignment2/
+ */
 class Compiler {
     /**
      * The compile function opens a new process to compile the project into a new jar file.
