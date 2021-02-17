@@ -84,7 +84,8 @@ public class ContinuousIntegrationServer extends AbstractHandler
         log = new BuildLogger();
         log.setSha(sha);
         log.setTime();
-        
+        log.setBranch(branch);
+
         String dest_path = "test";
         git = new GitHandler(dest_path);
         
@@ -100,7 +101,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
             // Compile the code
             compiler = new Compiler();
-            compiler.compile(log);
+            compiler.compile(log, dest_path);
 
             // Test the code
             tester = new Tester();

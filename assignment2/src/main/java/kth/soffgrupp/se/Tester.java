@@ -1,6 +1,7 @@
 package kth.soffgrupp.se;
 
 import java.io.*;
+import java.util.ArrayList;
 
 import kth.soffgrupp.se.exceptions.TestingException;
 
@@ -20,12 +21,23 @@ class Tester {
         try {
             // Run tests
             Process p = Runtime.getRuntime().exec("mvn -f test/assignment2 test");
+            //Process p = Runtime.getRuntime().exec("mvn test");
             BufferedReader stdin = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader stderror = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String s;
+            ArrayList<String> errors = new ArrayList<>();
 
             while((s = stdin.readLine()) != null) {
-            	
+
+                //Check test output for results
+                System.out.println(s);
+                if (s.contains("[ERROR] Failures:")){
+                    while(!(s = stdin.readLine()).contains("[INFO]")){
+                        s = s.replace("[ERROR]   ", "");
+                        errors.add(s);
+                    }
+                    log.setErrors_list(errors);
+                }
                 if (s.contains("Tests run") && s.contains("Failures")){
                     int[] vars = parseStat(s, log);
                     //Log test results
@@ -46,7 +58,7 @@ class Tester {
             
             //Throw exceptions at fail
             if(log.getTests_errors() > 0 || !log.isTest_success()) {
-                throw new TestingException("Error in tests");
+                throw new RuntimeException("Error in tests");
             }
             
             if(log.getTests_failed() > 0){
