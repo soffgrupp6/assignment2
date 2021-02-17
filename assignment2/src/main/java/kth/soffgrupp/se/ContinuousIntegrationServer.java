@@ -32,10 +32,10 @@ public class ContinuousIntegrationServer extends AbstractHandler
      * Creates an instance of the continuos integration server
      */
     public ContinuousIntegrationServer() {
-    	
+
         // Create database collection
         jsonDBTemplate = new JsonDBTemplate("jsondb", "kth.soffgrupp.se");
-        
+
         if (!jsonDBTemplate.collectionExists(BuildLogger.class)) {
             jsonDBTemplate.createCollection(BuildLogger.class);
         }
@@ -47,7 +47,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
         } catch(java.io.IOException e) {
             System.err.println(e);
         }
-        
+
     }
 
     /**
@@ -70,7 +70,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
         JSONObject data = new JSONObject(request.getReader().readLine());
         JSONObject repository = data.getJSONObject("repository");
         String repo = repository.getString("clone_url");
-        
+
         String branch;
         String sha;
 
@@ -83,7 +83,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
             baseRequest.setHandled(true);
             return;
         }
-        
+
         // New logging object
         log = new BuildLogger();
         log.setSha(sha);
@@ -92,10 +92,10 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
         String dest_path = "test";
         git = new GitHandler(dest_path);
-        
+
         boolean compilationSuccess = true, testingSuccess = true;
         notifier = new Notifier(git_repo);
-        
+
         try {
             // Notify pending
             notifier.setCommitStatus(sha, "Compiling and testing...", GHCommitState.PENDING);
@@ -114,31 +114,31 @@ public class ContinuousIntegrationServer extends AbstractHandler
         }
         catch(CompilationException ex) {
             compilationSuccess = false;
-        }       
+        }
         catch(TestingException ex) {
         	testingSuccess = false;
         }
         catch(GitAPIException ex) {
         	compilationSuccess = false;
         }
-        
+
         git.clean();
-        
+
         // Store build information in JSON file
         jsonDBTemplate.insert(log);
-        
+
         // Set commit status
         if(! compilationSuccess)
-        	notifier.setCommitStatus(sha, "Compilation failed", GHCommitState.ERROR);     
+        	notifier.setCommitStatus(sha, "Compilation failed", GHCommitState.ERROR);
         else if(! testingSuccess)
-        	notifier.setCommitStatus(sha, "Testing failed", GHCommitState.FAILURE);   
+        	notifier.setCommitStatus(sha, "Testing failed", GHCommitState.FAILURE);
         else
         	notifier.setCommitStatus(sha, "Success", GHCommitState.SUCCESS);
-        
+
         // Send response
         response.setStatus(HttpServletResponse.SC_OK);
         baseRequest.setHandled(true);
-        
+
         System.out.print("POST: ");
         System.out.println(target);
     }
@@ -206,7 +206,11 @@ public class ContinuousIntegrationServer extends AbstractHandler
                 buildString += "<p>" + compileString + "<p>";
                 if (logs.get(0).isCompile_success()) {
                     buildString += "<p>No. tests run: " + logs.get(0).getTests_run() + "<p>";
-                    buildString += "<p>" + testString + "<p>";
+                    buildString += "<p>" + testString + " with error messages: ";
+                    for (String msg : logs.get(0).getErrors_list()) {
+                        buildString += msg + ", ";
+                    }
+                    buildString += "<p>";
                 }
                 response.getWriter().println("<!DOCTYPE html><html><body><h1><a href=\"/\">CI Server</a></h1><div>"+ buildString + "</div></body></html>");
             }
