@@ -9,6 +9,10 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
+/**
+ * The purpose of this class is to function as a Git interface to be able to clone and checkout a repo
+ */
+
 class GitHandler {
     
     private File directory;
