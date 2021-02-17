@@ -63,7 +63,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
         JSONObject repository = data.getJSONObject("repository");
 
         String repo = repository.getString("clone_url");
-        String[] ref = data.getString("ref").split("/", 0);
+        String[] ref = data.getString("ref").split("/", 3);
         String branch = ref[ref.length-1];
         String sha;
 
@@ -96,7 +96,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
             // Compile the code
             compiler = new Compiler();
-            compiler.compile(log, dest_path);
+            compiler.compile(log, dest_path + "/assignment2");
 
             // Test the code
             tester = new Tester();

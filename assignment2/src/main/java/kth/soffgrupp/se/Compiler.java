@@ -10,7 +10,7 @@ class Compiler {
      */
     public void compile(BuildLogger log, String path) throws RuntimeException {
         try {
-            Process p = Runtime.getRuntime().exec("mvn -f" + path + " clean compile assembly:single");
+            Process p = Runtime.getRuntime().exec("mvn -f " + path + " clean compile assembly:single");
             BufferedReader stdin = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader stderror = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String s = null;
