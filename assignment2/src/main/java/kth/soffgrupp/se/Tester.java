@@ -2,10 +2,12 @@ package kth.soffgrupp.se;
 
 import java.io.*;
 import java.util.ArrayList;
+import kth.soffgrupp.se.exceptions.TestingException;
 
 /**
  * This class runs the tests on the Maven project in the directory ./test/assignment2/
  */
+
 class Tester {
     /**
      * The test method opens a new process to run the project tests.
@@ -14,10 +16,10 @@ class Tester {
      * The method writes the test results to the log object.
      *
      * @param log                 Object for logging the build
-     * @throws RuntimeException
+     * @throws TestingException
      */
 
-    public void test(BuildLogger log) throws RuntimeException{
+    public void test(BuildLogger log) throws TestingException {
         try {
             // Run tests
             Process p = Runtime.getRuntime().exec("mvn -f test/assignment2 test");
@@ -28,6 +30,7 @@ class Tester {
             ArrayList<String> errors = new ArrayList<>();
 
             while((s = stdin.readLine()) != null) {
+
                 //Check test output for results
                 System.out.println(s);
                 if (s.contains("[ERROR] Failures:")){
@@ -44,19 +47,24 @@ class Tester {
                     log.setTests_failed(vars[1]);
                     log.setTests_errors(vars[2]);
                 }
+                
                 if (s.contains("BUILD SUCCESS")){
                     log.setTest_success(true);
                 }
+                
             }
+            
             while((s = stderror.readLine()) != null) {
                 System.out.println(s);
             }
+            
             //Throw exceptions at fail
-            if(log.getTests_errors() > 0) {
+            if(log.getTests_errors() > 0 || !log.isTest_success()) {
                 throw new RuntimeException("Error in tests");
             }
+            
             if(log.getTests_failed() > 0){
-                throw new RuntimeException("Some tests failed");
+                throw new TestingException("Some tests failed");
             }
         }
         catch (IOException exception){
@@ -73,10 +81,12 @@ class Tester {
     private int[] parseStat(String s, BuildLogger log){
         String[] s_arr = s.split(",");
         int[] vars = new int[3];
+        
         for (int i=0; i<3; i++){
             String[] s_instance = s_arr[i].split(":");
             vars[i] = Integer.parseInt(s_instance[1].strip());
         }
+        
         return vars;
     }
 }
