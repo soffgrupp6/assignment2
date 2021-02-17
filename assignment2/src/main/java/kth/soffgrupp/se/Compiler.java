@@ -19,7 +19,6 @@ class Compiler {
                 if(s.contains("BUILD SUCCESS")){
                     log.setCompile_success(true);
                 }
-                System.out.println(s);
             }
             while((s = stderror.readLine()) != null) {
                 System.out.println(s);
