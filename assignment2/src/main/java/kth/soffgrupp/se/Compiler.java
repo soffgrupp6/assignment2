@@ -2,6 +2,9 @@ package kth.soffgrupp.se;
 
 import java.io.*;
 
+/**
+ * This class compiles the source files in the directory ./test/assignment2/
+ */
 import kth.soffgrupp.se.exceptions.CompilationException;
 
 class Compiler {

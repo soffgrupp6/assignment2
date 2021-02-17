@@ -20,14 +20,17 @@ import kth.soffgrupp.se.exceptions.TestingException;
 
 
 /**
- Skeleton of a ContinuousIntegrationServer which acts as webhook
- See the Jetty documentation for API documentation of those classes.
+ This class is a Continuos Integration Server that is set up to handle
+ webhooks and run compilation and tests while serving results on a web interface.
 */
 public class ContinuousIntegrationServer extends AbstractHandler
 {
     GHRepository git_repo;
     JsonDBTemplate jsonDBTemplate;
 
+    /**
+     * Creates an instance of the continuos integration server
+     */
     public ContinuousIntegrationServer() {
     	
         // Create database collection

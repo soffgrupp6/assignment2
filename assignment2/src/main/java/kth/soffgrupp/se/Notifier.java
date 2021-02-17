@@ -2,6 +2,9 @@ package kth.soffgrupp.se;
 
 import org.kohsuke.github.*;
 
+/**
+ * This class uses GitHub API to set commit statuses on commits
+ */
 public class Notifier {
 
     GHRepository repo;

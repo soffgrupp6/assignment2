@@ -2,9 +2,11 @@ package kth.soffgrupp.se;
 
 import java.io.*;
 import java.util.ArrayList;
-
 import kth.soffgrupp.se.exceptions.TestingException;
 
+/**
+ * This class runs the tests on the Maven project in the directory ./test/assignment2/
+ */
 
 class Tester {
     /**
