@@ -96,7 +96,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
             // Compile the code
             compiler = new Compiler();
-            compiler.compile(log, dest_path + "/assignment2");
+            compiler.compile(log, "test/assignment2");
 
             // Test the code
             tester = new Tester();
