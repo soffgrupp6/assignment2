@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 class GitHandler {
     
@@ -22,20 +23,17 @@ class GitHandler {
      * @param repo the repository URL
      * @param branch the branch name
      */
-    public void checkout(String repo, String branch) {
+    public void checkout(String repo, String branch) throws GitAPIException {
     	List<String> branches = new ArrayList<String>();
     	branches.add(branch);
-    	
-        try {
-			Git git = Git.cloneRepository()
-			    .setURI(repo)
-			    .setDirectory(directory)
-			    .setBranchesToClone(branches)
-			    .setBranch(branch)
-			    .call();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+
+		Git git = Git.cloneRepository()
+		    .setURI(repo)
+		    .setDirectory(directory)
+		    .setBranchesToClone(branches)
+		    .setBranch(branch)
+		    .call();
+
     }
     
     /**
