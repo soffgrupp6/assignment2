@@ -10,36 +10,44 @@ import java.util.List;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.kohsuke.github.*;
 import io.jsondb.JsonDBTemplate;
+import kth.soffgrupp.se.exceptions.CompilationException;
+import kth.soffgrupp.se.exceptions.TestingException;
 
 
 /**
- Skeleton of a ContinuousIntegrationServer which acts as webhook
- See the Jetty documentation for API documentation of those classes.
+ This class is a Continuos Integration Server that is set up to handle
+ webhooks and run compilation and tests while serving results on a web interface.
 */
 public class ContinuousIntegrationServer extends AbstractHandler
 {
     GHRepository git_repo;
     JsonDBTemplate jsonDBTemplate;
 
+    /**
+     * Creates an instance of the continuos integration server
+     */
     public ContinuousIntegrationServer() {
+    	
         // Create database collection
         jsonDBTemplate = new JsonDBTemplate("jsondb", "kth.soffgrupp.se");
+        
         if (!jsonDBTemplate.collectionExists(BuildLogger.class)) {
             jsonDBTemplate.createCollection(BuildLogger.class);
         }
 
+        // Initialize Github interface
         try {
             GitHub git_api = GitHubBuilder.fromPropertyFile().build();
-            //assert git_api.isCredentialValid() == true;
             git_repo = git_api.getRepository("soffgrupp6/assignment2");
-
         } catch(java.io.IOException e) {
             System.err.println(e);
         }
+        
     }
 
     /**
@@ -71,25 +79,25 @@ public class ContinuousIntegrationServer extends AbstractHandler
             branch = ref[ref.length-1];
             sha = data.getJSONObject("head_commit").getString("id");
         } catch (JSONException ex) {
-            // On ping
-            // Send response
             response.setStatus(HttpServletResponse.SC_OK);
             baseRequest.setHandled(true);
-            System.out.println("Webhook setup");
             return;
         }
-        String dest_path = "test";
-
-        git = new GitHandler(dest_path);
-        //New logging object
+        
+        // New logging object
         log = new BuildLogger();
         log.setSha(sha);
         log.setTime();
         log.setBranch(branch);
 
+        String dest_path = "test";
+        git = new GitHandler(dest_path);
+        
+        boolean compilationSuccess = true, testingSuccess = true;
+        notifier = new Notifier(git_repo);
+        
         try {
             // Notify pending
-            notifier = new Notifier(git_repo);
             notifier.setCommitStatus(sha, "Compiling and testing...", GHCommitState.PENDING);
 
             // Checkout the Git branch
@@ -103,18 +111,34 @@ public class ContinuousIntegrationServer extends AbstractHandler
             tester = new Tester();
             tester.test(log, "test/assignment2");
 
-        } catch(Exception ex) {
-            System.err.println("There was a failure in some step. The steps above should throw the appropriate error on failure. " + ex);
         }
-
+        catch(CompilationException ex) {
+            compilationSuccess = false;
+        }       
+        catch(TestingException ex) {
+        	testingSuccess = false;
+        }
+        catch(GitAPIException ex) {
+        	compilationSuccess = false;
+        }
+        
+        git.clean();
+        
         // Store build information in JSON file
         jsonDBTemplate.insert(log);
-
-        git.clean();
-
+        
+        // Set commit status
+        if(! compilationSuccess)
+        	notifier.setCommitStatus(sha, "Compilation failed", GHCommitState.ERROR);     
+        else if(! testingSuccess)
+        	notifier.setCommitStatus(sha, "Testing failed", GHCommitState.FAILURE);   
+        else
+        	notifier.setCommitStatus(sha, "Success", GHCommitState.SUCCESS);
+        
         // Send response
         response.setStatus(HttpServletResponse.SC_OK);
         baseRequest.setHandled(true);
+        
         System.out.print("POST: ");
         System.out.println(target);
     }

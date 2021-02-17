@@ -9,17 +9,26 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
+/**
+ * The purpose of this class is to function as a Git interface to be able to clone and checkout a repo
+ */
+
 class GitHandler {
-    
+
     private File directory;
-    
+
+    /**
+     * Creates a new GitHandler instance
+     *
+     * @param dir The directory to clone the repository to
+     */
     public GitHandler(String dir) {
         directory = new File(dir);
     }
 
     /**
      * Checkout a certain branch on a repo
-     * 
+     *
      * @param repo the repository URL
      * @param branch the branch name
      */
@@ -35,7 +44,7 @@ class GitHandler {
 		    .call();
 
     }
-    
+
     /**
      * Do some clean up of the directory
      */
@@ -46,6 +55,6 @@ class GitHandler {
 			e.printStackTrace();
 		}
     }
-    
-    
+
+
 }
