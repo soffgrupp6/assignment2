@@ -61,14 +61,15 @@ public class ContinuousIntegrationServer extends AbstractHandler
         // Read the request
         JSONObject data = new JSONObject(request.getReader().readLine());
         JSONObject repository = data.getJSONObject("repository");
-
         String repo = repository.getString("clone_url");
-        String[] ref = data.getString("ref").split("/", 3);
-        String branch = ref[ref.length-1];
+        
+        String branch;
         String sha;
 
         try {
-            sha = data.getJSONArray("commits").getJSONObject(0).getString("id");
+            String[] ref = data.getString("ref").split("/", 3);
+            branch = ref[ref.length-1];
+            sha = data.getJSONObject("head_commit").getString("id");
         } catch (JSONException ex) {
             // On ping
             // Send response
@@ -100,7 +101,7 @@ public class ContinuousIntegrationServer extends AbstractHandler
 
             // Test the code
             tester = new Tester();
-            tester.test(log);
+            tester.test(log, "test/assignment2");
 
         } catch(Exception ex) {
             System.err.println("There was a failure in some step. The steps above should throw the appropriate error on failure. " + ex);
