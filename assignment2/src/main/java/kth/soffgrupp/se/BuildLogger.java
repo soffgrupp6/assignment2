@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 /**
  * This class holds all build information
  */
+
 @Document(collection = "builds", schemaVersion= "1.0")
 public class BuildLogger {
     @Id
