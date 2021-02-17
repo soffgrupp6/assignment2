@@ -105,6 +105,11 @@ Depending on the success or failure of the compilation and testing steps a commi
 - *Testing failure*: failure
 - *Compilation success and testing success*: success
 
+#### Unit tests
+
+The unit tests for updating commit status consist of one "code coverage" test, making sure the correct code is run when calling the function. The other test checks that it throws a NullpointerException for empty repository data (i.e. no previous setup).
+
+
 ### Logging builds
 
 To log and keep track of the previous builds a JSON file is used, which stores the states of the builds with additional information.
