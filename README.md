@@ -6,6 +6,12 @@ The goal of this project was to create a small Continuous Integration server. Th
 
 The parts of this program were split evenly and implemented mostly individually by all 4 members of the group. The basic code skeleton was decided upon together, including the main ContinuosIntegrationServer file. We then setup a number of issues in Github, and divided them evenly so that one person worked on at least one of the bigger issues: compiling, testing, cloning, commit status and logging.
 
+## Remarkable
+
+We believe that our co-operation was remarkable. All of the pull requests were properly tested and code-reviewed by a peer to make sure that everything works and looks fine. This also gives room for improvement, since we receive feedback of things that we might not have thought of ourselves when writing the code. It also ensures that everyone is inline with what the code is doing, and knows how everything works. The pull requests were then merged by a peer as well.
+
+Another thing we would like to bring up is the structure of the project. We have made sure to implement well defined classes for each component which does one thing, and makes Unit testing a lot easier. For instance, we have one class for compiling and class for running unit tests. This also makes it easier to work as a group on separate parts of the project.
+
 ## Build instructions
 
 For building and package management we are using Maven.
@@ -61,6 +67,10 @@ Dependencies used in the project are:
 
 Once a webhook is received from Github, the corresponding repository is cloned in to the *test/* folder. This folder also checks-out the branch of which was regarded in the webhook. This way we may re-use the server for many different repositories.
 
+#### Unit Tests
+
+The Unit tests consists of trying to clone two different Github repos. One is a proper repo and other a non-existing one. The first one should yield a success, the other one a failure. We check for success by making sure that a non-empty folder is created.
+
 ### Compilation
 
 Compilation of the repository code is done by doing a *cd* to the *test/* directory, followed by a:
@@ -71,6 +81,10 @@ mvn clean compile assembly:single
 
 The output is then buffered and checked for a *completed status* text. If the parser finds that the compilation failed, an exception is thrown.
 
+#### Unit Tests
+
+The Unit tests consists of trying to compile two different Github repos. One is a proper repo and other a non-existing one. The first one should yield a success, the other one a failure. We check for success by making sure that the compilation returns a success.
+
 ### Testing
 
 The testing of the repository is done by doing a *cd* to the *test/* directory, followed by a:
@@ -80,6 +94,8 @@ mvn test
 ```
 
 This will run the automated Unit tests, and a parses will check the output and decide whether all the tests completed successfully or not. If not, an exception is thrown.
+
+#### Unit tests
 
 ### Updating commit status
 
@@ -92,3 +108,5 @@ Depending on the success or failure of the compilation and testing steps a commi
 ### Logging builds
 
 To log and keep track of the previous builds a JSON file is used, which stores the states of the builds with additional information.
+
+To access the full build information list, you will have to start the server and visit the following URL: http://localhost:8080/.
