@@ -14,7 +14,7 @@ class Compiler {
      * The stdout and stderror of the compilation process is printed to the servers stdout.
      * In the case of an IOException, the exceptions stacktrace is printed to the servers stdout.
      */
-    public void compile(BuildLogger log) throws CompilationException {
+    public void compile(BuildLogger log, String path) throws CompilationException {
         try {
             Process p = Runtime.getRuntime().exec("mvn -f" + path + " clean compile assembly:single");
             BufferedReader stdin = new BufferedReader(new InputStreamReader(p.getInputStream()));

@@ -116,6 +116,9 @@ public class ContinuousIntegrationServer extends AbstractHandler
         catch(TestingException ex) {
         	testingSuccess = false;
         }
+        catch(GitAPIException ex) {
+        	compilationSuccess = false;
+        }
         
         git.clean();
         
