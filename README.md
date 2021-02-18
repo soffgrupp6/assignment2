@@ -1,6 +1,6 @@
 # Assignment2
 
-The goal of this project was to create a small Continuous Integration server. This server will receive a Webhook from Github, clone the project, build and run automated Unit tests. It will then update the status of the commit, to note whether it was a success or failure.
+The goal of this project was to create a small Continuous Integration server. This server will receive a Webhook from Github, clone the project, build and run automated unit tests. It will then update the status of the commit, to note whether it was a success or failure.
 
 ## Contributions
 
