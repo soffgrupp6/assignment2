@@ -23,8 +23,8 @@ public class GitHandlerTest {
 		}
 		
 		File file = new File("test2");
-		assertTrue("Directory was not cloned successfully", file.exists());
-		assertTrue("Directory was empty", file.list().length > 0);
+		assertFalse("Directory was not cloned successfully", file.exists());
+		assertFalse("Directory was empty", file.list().length > 0);
 		
 		git.clean();
 	}
